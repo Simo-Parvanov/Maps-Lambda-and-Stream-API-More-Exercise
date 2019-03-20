@@ -1,0 +1,82 @@
+public class MobaChallenger03 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        String list = scanner.nextLine();
+        HashMap<String, HashMap<String, Integer>> listSkill = new HashMap<>();
+
+        while (!list.equals("Season end")) {
+            String[] listSplit = list.split("\\s+");
+            if (listSplit.length > 3) {
+                String[] commands = list.split(" -> ");
+                String name = commands[0];
+                String skill = commands[1];
+                int power = Integer.parseInt(commands[2]);
+
+                listSkill.putIfAbsent(name, new HashMap<>());
+                HashMap<String, Integer> hashListSkill = listSkill.get(name);
+                hashListSkill.putIfAbsent(skill, 0);
+                if (listSkill.containsKey(name)
+                        && hashListSkill.containsKey(skill)
+                        && hashListSkill.get(skill) < power) {
+                    hashListSkill.put(skill, power);
+                }
+            } else {
+                String[] commandBattle = list.split(" vs ");
+                String player1 = commandBattle[0];
+                String player2 = commandBattle[1];
+                if (listSkill.containsKey(player1) && listSkill.containsKey(player2)) {
+                    HashMap<String, Integer> sss = listSkill.get(player1);
+                    HashMap<String, Integer> bbb = listSkill.get(player2);
+
+                    for (Map.Entry<String, Integer> stringIntegerEntry : sss.entrySet()) {
+                        String name1 = stringIntegerEntry.getKey();
+                        int point1 = stringIntegerEntry.getValue();
+
+                        for (Map.Entry<String, Integer> integerEntry : bbb.entrySet()) {
+                            String name2 = integerEntry.getKey();
+                            int point2 = integerEntry.getValue();
+
+                            if (name1.equals(name2)) {
+                                if (point1 > point2) {
+                                    listSkill.remove(player2);
+                                    break;
+                                } else {
+                                    listSkill.remove(player1);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            list = scanner.nextLine();
+        }
+        HashMap<String, Integer> ooo = new LinkedHashMap<>();
+        for (Map.Entry<String, HashMap<String, Integer>> entry : listSkill.entrySet()) {
+            ooo.put(entry.getKey(), 0);
+            HashMap<String, Integer> sss = entry.getValue();
+            int sum = 0;
+            for (Integer value : sss.values()) {
+                sum += value;
+            }
+            ooo.put(entry.getKey(), sum);
+        }
+        ooo.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry.comparingByKey()))
+                .forEach(entry -> {
+
+                    System.out.println(String.format("%s: %d skill", entry.getKey(), entry.getValue()));
+                    HashMap<String, Integer> mmm = listSkill.get(entry.getKey());
+
+                    mmm.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue()
+                            .reversed()
+                            .thenComparing(Map.Entry.comparingByKey()))
+                            .forEach(entry2 -> {
+                                System.out.println(String.format("- %s <::> %d", entry2.getKey(), entry2.getValue()));
+                            });
+                });
+    }
+}
