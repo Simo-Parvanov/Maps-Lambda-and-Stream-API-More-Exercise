@@ -1,0 +1,66 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TreeMap;
+
+public class Ranking01 {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        String input = scanner.nextLine();
+
+        TreeMap<String, TreeMap<String, Integer>> sss = new TreeMap<>();
+        HashMap<String, String> contestList = new HashMap<>();
+
+        while (!input.equals("end of contests")) {
+            String[] contests = input.split(":");
+            String lenguage = contests[0];
+            String password = contests[1];
+            contestList.putIfAbsent(lenguage, password);
+            input = scanner.nextLine();
+        }
+        String secondInput = scanner.nextLine();
+        while (!secondInput.equals("end of submissions")) {
+            String[] submissions = secondInput.split("=>");
+            String contest = submissions[0];
+            String password = submissions[1];
+            String username = submissions[2];
+            int points = Integer.parseInt(submissions[3]);
+            if (contestList.containsKey(contest) && contestList.containsValue(password)) {
+                sss.putIfAbsent(username, new TreeMap<>());
+                TreeMap<String, Integer> aaa = sss.get(username);
+                aaa.putIfAbsent(contest, 0);
+                int point1 = aaa.get(contest);
+                if (point1 > points) {
+                    aaa.put(contest, point1);
+                } else {
+                    aaa.put(contest, points);
+                }
+            }
+            secondInput = scanner.nextLine();
+        }
+        String name = "";
+        int best = 0;
+        int sum = 0;
+        for (Map.Entry<String, TreeMap<String, Integer>> entry : sss.entrySet()) {
+            TreeMap<String, Integer> bbb = entry.getValue();
+            for (Integer value : bbb.values()) {
+                sum += value;
+                if (sum > best) {
+                    best = sum;
+                    name = entry.getKey();
+                }
+            }
+            sum = 0;
+        }
+        System.out.println(String.format("Best candidate is %s with total %d points.", name, best));
+        System.out.println("Ranking: ");
+        for (Map.Entry<String, TreeMap<String, Integer>> entry : sss.entrySet()) {
+            System.out.println(String.format("%s", entry.getKey()));
+            TreeMap<String, Integer> bbb = entry.getValue();
+            bbb.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).forEach(entry1 -> {
+                System.out.println(String.format("#  %s -> %d", entry1.getKey(), entry1.getValue()));
+            });
+        }
+    }
+}
